@@ -91,6 +91,7 @@ def __getattr__(name: str):
 
         if name in module_map:
             from importlib import import_module
+
             module = import_module(module_map[name], __name__)
             return getattr(module, name)
 

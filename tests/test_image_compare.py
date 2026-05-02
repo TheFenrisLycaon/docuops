@@ -40,17 +40,17 @@ class TestImageCompare:
 
     def test_images_equal_identical(self):
         """Test images_equal returns True for identical PIL images."""
-        img = Image.new('RGB', (10, 10), color='red')
+        img = Image.new("RGB", (10, 10), color="red")
         assert images_equal(img, img) is True
 
     def test_images_equal_different(self):
         """Test images_equal returns False for different PIL images."""
-        img1 = Image.new('RGB', (10, 10), color='red')
-        img2 = Image.new('RGB', (10, 10), color='blue')
+        img1 = Image.new("RGB", (10, 10), color="red")
+        img2 = Image.new("RGB", (10, 10), color="blue")
         assert images_equal(img1, img2) is False
 
     def test_images_equal_different_sizes(self):
         """Test images_equal returns False for images of different sizes."""
-        img1 = Image.new('RGB', (10, 10), color='red')
-        img2 = Image.new('RGB', (20, 20), color='red')
+        img1 = Image.new("RGB", (10, 10), color="red")
+        img2 = Image.new("RGB", (20, 20), color="red")
         assert images_equal(img1, img2) is False

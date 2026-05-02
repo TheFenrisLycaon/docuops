@@ -13,15 +13,13 @@ from docuops.docx_table import populate_table
 class TestDocxTable:
     """Test cases for DOCX table population functions."""
 
-    @patch('docuops.docx_table.DocxTemplate')
+    @patch("docuops.docx_table.DocxTemplate")
     def test_populate_table(self, mock_docx_template, temp_dir):
         """Test populate_table function with mock data."""
         # Create mock Excel data
-        excel_data = pd.DataFrame({
-            'Name': ['Alice', 'Bob'],
-            'Age': [25, 30],
-            'City': ['NYC', 'LA']
-        })
+        excel_data = pd.DataFrame(
+            {"Name": ["Alice", "Bob"], "Age": [25, 30], "City": ["NYC", "LA"]}
+        )
 
         # Mock files
         excel_file = temp_dir / "test.xlsx"
@@ -34,7 +32,7 @@ class TestDocxTable:
         output_file.write_text("")
 
         # Mock pandas read_excel
-        with patch('pandas.read_excel', return_value=excel_data) as mock_read_excel:
+        with patch("pandas.read_excel", return_value=excel_data) as mock_read_excel:
             # Mock DocxTemplate
             mock_template_instance = MagicMock()
             mock_docx_template.return_value = mock_template_instance
@@ -51,10 +49,10 @@ class TestDocxTable:
             expected_context = {
                 "tbl_contents": [
                     {"cols": ["Alice", 25, "NYC"]},
-                    {"cols": ["Bob", 30, "LA"]}
+                    {"cols": ["Bob", 30, "LA"]},
                 ]
             }
             mock_template_instance.render.assert_called_once_with(expected_context)
 
             # Check that save was called
-            mock_template_instance.save.assert_called_once_with(output_file)
+            mock_template_instance.save.assert_called_once_with(str(output_file))
