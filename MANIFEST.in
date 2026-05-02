@@ -2,3 +2,4 @@ include README.md
 include requirements.txt
 include LICENSE
 recursive-include docuops *.py
+recursive-include tests *.py

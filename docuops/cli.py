@@ -11,6 +11,7 @@ Commands
     compare    — Compare two image directories (MSE, SSIM, equality)
     insert     — Insert images into a new DOCX document
     table      — Populate a DOCX table from an Excel file
+    test       — Run the test suite
 """
 
 import argparse
@@ -108,6 +109,24 @@ def _cmd_table(args: argparse.Namespace) -> None:
         template_path=args.template,
         output_path=args.output,
     )
+
+
+def _cmd_test(args: argparse.Namespace) -> None:
+    """Run the test suite using pytest."""
+    import subprocess
+    import sys
+
+    try:
+        # Run pytest on the tests directory
+        result = subprocess.run([sys.executable, "-m", "pytest", "tests/", "-v"], 
+                              capture_output=True, text=True)
+        print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
+        sys.exit(result.returncode)
+    except FileNotFoundError:
+        print("Error: pytest not found. Install with: pip install pytest")
+        sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +274,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p_tbl.add_argument("--template", required=True, help="Path to .docx template file.")
     p_tbl.add_argument("--output", required=True, help="Output .docx path.")
     p_tbl.set_defaults(func=_cmd_table)
+
+    # ------------------------------------------------------------------ test
+    p_test = sub.add_parser("test", help="Run the test suite.")
+    p_test.set_defaults(func=_cmd_test)
 
     return parser
 

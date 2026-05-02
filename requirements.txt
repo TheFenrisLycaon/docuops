@@ -9,3 +9,4 @@ scikit-image
 matplotlib
 numpy
 tqdm
+pytest
