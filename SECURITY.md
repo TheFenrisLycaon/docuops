@@ -6,7 +6,7 @@ We actively support the latest version of this project with security updates. Ol
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this project, please report it by emailing [security@example.com] (replace with your actual security contact email). 
+If you discover a security vulnerability in this project, please report it by opening an issue.
 
 We will acknowledge receipt of your report within 48 hours and provide a more detailed response within 7 days indicating our next steps.
 
