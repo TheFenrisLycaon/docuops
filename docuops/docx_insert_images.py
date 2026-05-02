@@ -14,6 +14,8 @@ Dependencies
     python-docx (pip, imported as ``docx``)
 """
 
+import os
+
 import docx as _docx
 from docx.shared import Inches
 
@@ -27,7 +29,7 @@ def insert_image(
 ) -> None:
     """Insert an image (with an optional heading) into *doc*, then add a page break.
 
-    Args:
+    Params:
         doc: An open ``python-docx`` Document object to write into.
         img_path: Path to the image file to embed.
         size_x: Image width in inches.
@@ -45,6 +47,8 @@ def insert_image(
         insert_image(doc, "gst.jpg",  5, 7, title="GST")
         doc.save("output.docx")
     """
+    if not os.path.isfile(img_path):
+        raise ValueError(f"Image file not found: {img_path}")
     if title is not None:
         doc.add_heading(title, level=0)
     doc.add_picture(img_path, width=Inches(size_x), height=Inches(size_y))

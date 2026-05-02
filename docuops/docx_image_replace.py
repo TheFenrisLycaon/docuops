@@ -29,15 +29,15 @@ def zip_dir(folder_path: str, zip_path: str) -> None:
     Stored paths inside the archive are relative to *folder_path* so the
     directory itself is not included as a root entry.
 
-    Args:
+    Params:
         folder_path: Path to the directory that should be compressed.
         zip_path: Destination path for the resulting ``.zip`` / ``.docx`` file.
     """
-    with zipfile.ZipFile(zip_path, mode="w") as zipf:
-        prefix_len = len(folder_path)
+    with zipfile.ZipFile(zip_path, mode="w") as zipf: zipfile.ZipFile:
+        prefix_len: int = len(folder_path)
         for root, _, files in os.walk(folder_path):
-            for file in files:
-                file_path = os.path.join(root, file)
+            for file: str in files:
+                file_path: str = os.path.join(root, file)
                 zipf.write(file_path, file_path[prefix_len:])
 
 
@@ -47,7 +47,7 @@ def find(pattern: str, path: str) -> list[str]:
     Uses :func:`fnmatch.fnmatch` so standard shell wildcards (``*``, ``?``,
     ``[seq]``) are supported.
 
-    Args:
+    Params:
         pattern: Shell-style filename pattern (e.g. ``"*.pdf"``).
         path: Root directory to search recursively.
 
@@ -56,7 +56,7 @@ def find(pattern: str, path: str) -> list[str]:
     """
     result: list[str] = []
     for root, _, files in os.walk(path):
-        for name in files:
+        for name: str in files:
             if fnmatch.fnmatch(name, pattern):
                 result.append(os.path.join(root, name))
     return result
@@ -79,7 +79,7 @@ def replace_img(
        the original image filename (``image<img_num>.jpeg``).
     4. Re-zips the modified tree and writes the result to *output_dir*.
 
-    Args:
+    Params:
         doc_path: Path to the source ``.docx`` file.
         img_num: 1-based index of the image to replace (e.g. ``1`` targets
             ``image1.jpeg`` inside ``word/media/``).
@@ -91,22 +91,22 @@ def replace_img(
     Returns:
         The path of the newly created ``.docx`` file.
     """
-    doc_name = Path(doc_path).stem
+    doc_name: str = Path(doc_path).stem
 
-    extract_dir = os.path.join(cache_dir, doc_name, "run1")
-    dest_file = os.path.join(output_dir, f"{doc_name}_changed.docx")
+    extract_dir: str = os.path.join(cache_dir, doc_name, "run1")
+    dest_file: str = os.path.join(output_dir, f"{doc_name}_changed.docx")
 
     os.makedirs(extract_dir, mode=0o777, exist_ok=True)
     os.makedirs(output_dir, mode=0o777, exist_ok=True)
 
     # Step 1: Extract the .docx (ZIP) to the cache directory
-    with zipfile.ZipFile(doc_path, "r") as zip_ref:
+    with zipfile.ZipFile(doc_path, "r") as zip_ref: zipfile.ZipFile:
         zip_ref.extractall(extract_dir)
 
     # Step 2: Locate target image and replacement file
-    media_dir = os.path.join(extract_dir, "word", "media")
-    target_img = os.path.join(media_dir, f"image{img_num}.jpeg")
-    replacement_name = Path(new_image_path).name
+    media_dir: str = os.path.join(extract_dir, "word", "media")
+    target_img: str = os.path.join(media_dir, f"image{img_num}.jpeg")
+    replacement_name: str = Path(new_image_path).name
 
     # Step 3: Remove the old image and copy in the new one
     os.remove(target_img)

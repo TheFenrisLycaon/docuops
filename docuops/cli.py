@@ -1,67 +1,44 @@
-"""
-cli.py — Unified Command-Line Interface for docuops
-====================================================
-Run as ``python -m docuops <command> [options]``.
-
-This CLI uses Google's Fire library for automatic argument parsing.
-
-Commands
---------
-    compress   — 3-stage PDF compression pipeline
-    pdf2docx   — Convert PDFs to DOCX (statement / certificates / license / work)
-    replace    — Replace an embedded image inside a .docx file
-    compare    — Compare two image directories (MSE, SSIM, equality)
-    insert     — Insert images into a new DOCX document
-    table      — Populate a DOCX table from an Excel file
-    test       — Run the test suite
-"""
-
-import fire
 from pathlib import Path
+from typing import Iterable
+
+import docx as _docx
+import fire
+from docx.document import Document
+
+from docuops import config
+from docuops.docx_image_replace import replace_img
+from docuops.docx_insert_images import insert_image
+from docuops.image_compare import compare_directories
 
 
-class DocOpsCLI:
-    """Command-line interface for document operations using Google's Fire."""
+class docuopsCLI:
+    """Command-line interface for document operations."""
 
-    def compress(
-        self,
-        source="./Source",
-        pdf_out="./PDFCompression",
-        img_conversion="./ImageConversion",
-        img_compression="./ImageCompression",
-        quality=3,
-    ):
+    def compress(self) -> bool:
         """
         3-stage PDF compression pipeline.
-
-        Args:
-            source: Source PDF directory (default: ./Source)
-            pdf_out: Compressed PDF output dir (default: ./PDFCompression)
-            img_conversion: PDF→image output dir (default: ./ImageConversion)
-            img_compression: Image compression output dir (default: ./ImageCompression)
-            quality: Ghostscript quality preset 0=default … 4=screen (default: 3)
         """
-        from docuops.pdf_compress import run_pipeline
+        from docuops.pdf_compress import run_compression_pipeline
 
-        run_pipeline(
-            source_dir=Path(source),
-            pdf_out_dir=Path(pdf_out),
-            img_conversion_dir=Path(img_conversion),
-            img_compression_dir=Path(img_compression),
-            quality=int(quality),
+        return run_compression_pipeline(
+            source_dir=Path(config.SOURCE_PATH),
+            pdf_out_dir=Path(config.OUTPUT_PATH),
+            img_conversion_dir=Path(config.CONVERSION_PATH),
+            img_compression_dir=Path(config.COMPRESSION_DIR),
+            quality=config.QUALITY,
         )
 
     def pdf2docx(
         self,
-        subcommand,
-        input_dir=None,
-        output_dir=".",
-        output=None,
-        work_dir=None,
-        comp_dir=None,
-        pdf=None,
-        poppler_path=None,
-    ):
+        subcommand: str,
+        input_dir: str,
+        output_dir: str,
+        output: str,
+        work_dir: str,
+        comp_dir: str,
+        pdf: str,
+        poppler_path: str,
+    ) -> bool:
         """
         Convert PDFs to DOCX documents.
 
@@ -78,13 +55,13 @@ class DocOpsCLI:
         from docuops.pdf_to_docx import (
             create_certificates,
             create_license,
-            create_statement,
+            merge_pdfs_to_docs,
             create_work,
             pdf_to_jpegs,
         )
 
         if subcommand == "statement":
-            create_statement(input_dir, output_dir, poppler_path)
+            merge_pdfs_to_docs(input_dir, output_dir, poppler_path)
         elif subcommand == "certificates":
             create_certificates(input_dir, output, poppler_path)
         elif subcommand == "license":
@@ -96,7 +73,9 @@ class DocOpsCLI:
         else:
             raise ValueError(f"Unknown subcommand: {subcommand}")
 
-    def replace(self, doc, img_num, new_img, cache_dir=".cache", output_dir="data"):
+    def replace(
+        self, doc, img_num, new_img, cache_dir=".cache", output_dir="data"
+    ) -> None:
         """
         Replace an embedded image in a .docx file.
 
@@ -107,9 +86,7 @@ class DocOpsCLI:
             cache_dir: Temp extraction directory (default: .cache)
             output_dir: Output directory (default: data)
         """
-        from docuops.docx_image_replace import replace_img
-
-        output = replace_img(
+        output: str = replace_img(
             doc_path=doc,
             img_num=int(img_num),
             new_image_path=new_img,
@@ -118,7 +95,7 @@ class DocOpsCLI:
         )
         print(f"Done — modified document saved to: {output}")
 
-    def compare(self, dir_a, dir_b):
+    def compare(self, dir_a, dir_b) -> None:
         """
         Compare two image directories.
 
@@ -126,7 +103,6 @@ class DocOpsCLI:
             dir_a: First image directory
             dir_b: Second image directory
         """
-        from docuops.image_compare import compare_directories
 
         results = compare_directories(dir_a, dir_b)
         print(f"{'File A':<40} {'File B':<40} {'MSE':>10} {'SSIM':>8} {'Equal':>6}")
@@ -137,7 +113,14 @@ class DocOpsCLI:
                 f" {r['mse']:>10.2f} {r['ssim']:>8.4f} {str(r['equal']):>6}"
             )
 
-    def insert(self, images, output, width=5.0, height=7.0, auto_title=False):
+    def insert(
+        self,
+        images: Iterable[str],
+        output: str,
+        width: int = config.IMAGE_SIZE_X,
+        height: int = config.IMAGE_SIZE_Y,
+        auto_title: bool = False,
+    ) -> None:
         """
         Insert images into a new DOCX document.
 
@@ -148,11 +131,7 @@ class DocOpsCLI:
             height: Image height in inches (default: 7.0)
             auto_title: Use the image filename stem as a heading
         """
-        import docx as _docx
-
-        from docuops.docx_insert_images import insert_image
-
-        doc = _docx.Document()
+        doc: Document = _docx.Document()
         for img_path in images:
             insert_image(
                 doc,
@@ -164,47 +143,10 @@ class DocOpsCLI:
         doc.save(output)
         print(f"Done — saved to: {output}")
 
-    def table(self, excel, template, output):
-        """
-        Populate a DOCX table from an Excel file.
 
-        Args:
-            excel: Path to source .xlsx file
-            template: Path to .docx template file
-            output: Output .docx path
-        """
-        from docuops.docx_table import populate_table
-
-        populate_table(
-            excel_path=excel,
-            template_path=template,
-            output_path=output,
-        )
-
-    def test(self):
-        """Run the test suite."""
-        import subprocess
-        import sys
-
-        try:
-            # Run pytest on the tests directory
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", "tests/", "-v"],
-                capture_output=True,
-                text=True,
-            )
-            print(result.stdout)
-            if result.stderr:
-                print(result.stderr)
-            sys.exit(result.returncode)
-        except FileNotFoundError:
-            print("Error: pytest not found. Install with: pip install pytest")
-            sys.exit(1)
-
-
-def main():
+def main() -> None:
     """Entry point for the CLI."""
-    fire.Fire(DocOpsCLI)
+    fire.Fire(docuopsCLI)
 
 
 if __name__ == "__main__":

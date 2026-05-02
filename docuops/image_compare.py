@@ -23,7 +23,11 @@ Dependencies
 """
 
 import os
+from typing import Any
+from typing import Any
 
+from PIL.ImageFile import ImageFile
+from PIL.ImageFile import ImageFile
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,20 +59,20 @@ def compare_images(
 ) -> None:
     """Display two grayscale images side-by-side with MSE and SSIM in the title.
 
-    Args:
+    Params:
         img_a: First image as a grayscale NumPy array.
         img_b: Second image as a grayscale NumPy array.
         title: Figure title.
     """
-    m = mse(img_a, img_b)
-    s = ssim_score(img_a, img_b)
-    fig = plt.figure(title)
+    m: float = mse(img_a, img_b)
+    s: float = ssim_score(img_a, img_b)
+    fig: plt.Figure = plt.figure(title)
     plt.suptitle(f"MSE: {m:.2f}, SSIM: {s:.2f}")
-    ax = fig.add_subplot(1, 2, 1)
+    ax: plt.Axes = fig.add_subplot(1, 2, 1)
     plt.imshow(img_a, cmap=plt.cm.gray)
     plt.axis("off")
     ax.set_title("Image A")
-    ax = fig.add_subplot(1, 2, 2)
+    ax: plt.Axes = fig.add_subplot(1, 2, 2)
     plt.imshow(img_b, cmap=plt.cm.gray)
     plt.axis("off")
     ax.set_title("Image B")
@@ -81,24 +85,40 @@ def compare_directories(dir_a: str, dir_b: str) -> list[dict]:
 
     The i-th file in each sorted directory listing is treated as a pair.
 
-    Args:
+    Params:
         dir_a: Path to the first directory of images.
         dir_b: Path to the second directory of images.
 
     Returns:
         List of dicts with keys: ``file_a``, ``file_b``, ``mse``, ``ssim``, ``equal``.
     """
-    files_a = sorted(os.listdir(dir_a))
-    files_b = sorted(os.listdir(dir_b))
+    if not os.path.isdir(dir_a):
+        raise ValueError(f"Directory not found: {dir_a}")
+    if not os.path.isdir(dir_b):
+        raise ValueError(f"Directory not found: {dir_b}")
+    files_a: list[str] = sorted(os.listdir(dir_a))
+    files_b: list[str] = sorted(os.listdir(dir_b))
     results: list[dict] = []
 
     for name_a, name_b in zip(files_a, files_b):
-        path_a = os.path.join(dir_a, name_a)
-        path_b = os.path.join(dir_b, name_b)
-        cv_a = cv2.imread(path_a, cv2.IMREAD_GRAYSCALE)
-        cv_b = cv2.imread(path_b, cv2.IMREAD_GRAYSCALE)
-        pil_a = Image.open(path_a)
-        pil_b = Image.open(path_b)
+        path_a: str = os.path.join(dir_a, name_a)
+        path_b: str = os.path.join(dir_b, name_b)
+        cv_a: (
+            cv2.Mat
+            | np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]]
+            | None
+        ) = cv2.imread(path_a, cv2.IMREAD_GRAYSCALE)
+        cv_b: (
+            cv2.Mat
+            | np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]]
+            | None
+        ) = cv2.imread(path_b, cv2.IMREAD_GRAYSCALE)
+        if cv_a is None:
+            raise ValueError(f"Could not read image: {path_a}")
+        if cv_b is None:
+            raise ValueError(f"Could not read image: {path_b}")
+        pil_a: ImageFile = Image.open(path_a)
+        pil_b: ImageFile = Image.open(path_b)
         results.append(
             {
                 "file_a": path_a,

@@ -39,10 +39,10 @@ class TestPdfCompress:
 
         # Check that subprocess.call was called with correct arguments
         mock_subprocess.assert_called_once()
-        args = mock_subprocess.call_args[0][0]
-        assert "gs" in args
-        assert f"-sOutputFile={output_file}" in args
-        assert "-dPDFSETTINGS=/ebook" in args
+        Params = mock_subprocess.call_Params[0][0]
+        assert "gs" in Params
+        assert f"-sOutputFile={output_file}" in Params
+        assert "-dPDFSETTINGS=/ebook" in Params
 
     @patch("subprocess.call")
     def test_compress_invalid_file_extension(self, mock_subprocess, temp_dir):

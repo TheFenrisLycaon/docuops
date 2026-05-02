@@ -5,18 +5,18 @@ Tests for CLI module.
 import pytest
 from unittest.mock import patch
 
-from docuops.cli import DocOpsCLI, main
+from docuops.cli import docuopsCLI, main
 
 
 class TestCLI:
     """Test cases for CLI functions."""
 
     def test_cli_class_exists(self):
-        """Test that the DocOpsCLI class can be instantiated."""
-        cli = DocOpsCLI()
+        """Test that the docuopsCLI class can be instantiated."""
+        cli = docuopsCLI()
         assert cli is not None
 
-    @patch("sys.argv", ["docops", "test"])
+    @patch("sys.argv", ["docuops", "test"])
     @patch("subprocess.run")
     @patch("sys.exit")
     def test_main_test_command(self, mock_exit, mock_subprocess):
@@ -34,12 +34,12 @@ class TestCLI:
     @patch("docuops.pdf_compress.run_pipeline")
     def test_compress_command(self, mock_run_pipeline):
         """Test the compress command."""
-        cli = DocOpsCLI()
+        cli = docuopsCLI()
         cli.compress(source="./test_source", quality=2)
         mock_run_pipeline.assert_called_once()
-        args, kwargs = mock_run_pipeline.call_args
-        assert str(kwargs["source_dir"]) == "test_source"
-        assert kwargs["quality"] == 2
+        Params, kwParams = mock_run_pipeline.call_Params
+        assert str(kwParams["source_dir"]) == "test_source"
+        assert kwParams["quality"] == 2
 
     @patch("docuops.image_compare.compare_directories")
     def test_compare_command(self, mock_compare):
@@ -53,6 +53,6 @@ class TestCLI:
                 "equal": True,
             }
         ]
-        cli = DocOpsCLI()
+        cli = docuopsCLI()
         cli.compare("dir_a", "dir_b")
         mock_compare.assert_called_once_with("dir_a", "dir_b")

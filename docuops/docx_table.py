@@ -15,8 +15,11 @@ Dependencies
     docxtpl  (pip)
 """
 
+import os
+
 import pandas as pd
 from docxtpl import DocxTemplate
+from pandas import DataFrame
 
 
 def populate_table(
@@ -33,7 +36,7 @@ def populate_table(
         {% for col in row.cols %}{{ col }} {% endfor %}
         {% endfor %}
 
-    Args:
+    Params:
         excel_path: Path to the source ``.xlsx`` (or ``.xls``) file.
         template_path: Path to the ``.docx`` template file.
         output_path: Destination path for the rendered ``.docx`` file.
@@ -48,7 +51,12 @@ def populate_table(
             output_path="output/table_filled.docx",
         )
     """
-    data = pd.read_excel(excel_path)
+    if not os.path.isfile(excel_path):
+        raise ValueError(f"Excel file not found: {excel_path}")
+    if not os.path.isfile(template_path):
+        raise ValueError(f"Template file not found: {template_path}")
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    data: DataFrame = pd.read_excel(excel_path)
 
     context: dict = {"tbl_contents": []}
     for _, row in data.iterrows():
