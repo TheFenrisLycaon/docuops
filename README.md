@@ -34,69 +34,219 @@ python -m docuops <command> [options]
 
 ### Commands
 
-`compress`
+#### `compress`
 
-- Compress PDFs with Ghostscript, convert them to images, and recompress the images.
-- Example:
+Compress PDFs using Ghostscript and convert them to images, then recompress the images for optimal file size reduction.
 
-  ```bash
-  python -m docops compress --source ./Source --pdf-out ./PDFCompression --img-conversion ./ImageConversion --img-compression ./ImageCompression --quality 3
-  ```
+**Parameters:**
 
-`pdf2docx`
+- `--source`: Directory containing source PDFs
+- `--pdf-out`: Output directory for compressed PDFs
+- `--img-conversion`: Output directory for converted images
+- `--img-compression`: Output directory for recompressed images
+- `--quality`: Quality level for compression (1-5, lower = smaller file size)
 
-- Convert PDFs and images into DOCX documents.
-- Modes:
-  - `statement`: Convert each PDF in a directory into its own DOCX.
-  - `certificates`: Merge all PDFs in a directory into one DOCX.
-  - `license`: Embed all images in a directory into a single DOCX.
-  - `work`: Interleave work and company PDFs into one DOCX.
-  - `conv`: Convert a single PDF into numbered JPEGs.
+**Basic example:**
 
-Example:
+```bash
+python -m docops compress --source ./Source --pdf-out ./PDFCompression --img-conversion ./ImageConversion --img-compression ./ImageCompression --quality 3
+```
+
+**High-quality compression (for archival):**
+
+```bash
+python -m docops compress --source ./pdfs --pdf-out ./compressed --img-conversion ./temp_images --img-compression ./final_images --quality 5
+```
+
+**Aggressive compression (for web distribution):**
+
+```bash
+python -m docops compress --source ./pdfs --pdf-out ./web_pdfs --img-conversion ./temp --img-compression ./web_images --quality 1
+```
+
+---
+
+#### `pdf2docx`
+
+Convert PDFs and images into DOCX documents using multiple modes for different use cases.
+
+**Modes:**
+
+- `statement`: Convert each PDF in a directory into its own separate DOCX file
+- `certificates`: Merge all PDFs in a directory into one combined DOCX
+- `license`: Embed all images from a directory into a single DOCX
+- `work`: Interleave work and company PDFs into one DOCX document
+- `conv`: Convert a single PDF into numbered JPEGs
+
+**Convert individual PDFs to separate DOCX files:**
 
 ```bash
 python -m docops pdf2docx statement --input-dir ./pdfs --output-dir ./docx
 ```
 
-`replace`
+**Merge multiple PDFs into one DOCX:**
 
-- Replace an embedded image inside a DOCX file.
+```bash
+python -m docops pdf2docx certificates --input-dir ./certificates_pdf --output-dir ./output
+```
 
-Example:
+**Embed image gallery into DOCX:**
+
+```bash
+python -m docops pdf2docx license --input-dir ./images --output-dir ./output
+```
+
+**Interleave work and company documents:**
+
+```bash
+python -m docops pdf2docx work --input-dir ./mixed_documents --output-dir ./organized
+```
+
+**Convert single PDF to numbered JPEG sequence:**
+
+```bash
+python -m docops pdf2docx conv --input path/to/document.pdf --output-dir ./pages
+```
+
+**With Poppler path specified (if not on PATH):**
+
+```bash
+python -m docops pdf2docx statement --input-dir ./pdfs --output-dir ./docx --poppler-path "C:\Program Files\poppler\Library\bin"
+```
+
+---
+
+#### `replace`
+
+Replace an embedded image within an existing DOCX file. Useful for updating diagrams, logos, or photos in documents.
+
+**Parameters:**
+
+- `--doc`: Path to the DOCX file
+- `--img-num`: Index of the image to replace (1-based)
+- `--new-img`: Path to the new image file
+- `--cache-dir`: Temporary directory for processing
+- `--output-dir`: Directory for the modified DOCX
+
+**Basic replacement:**
 
 ```bash
 python -m docops replace --doc path/to/file.docx --img-num 1 --new-img path/to/new.jpg --cache-dir .cache --output-dir data
 ```
 
-`compare`
+**Replace second image with a PNG:**
 
-- Compare two image directories.
+```bash
+python -m docops replace --doc report.docx --img-num 2 --new-img updated_chart.png --cache-dir ./temp --output-dir ./output
+```
 
-Example:
+**Replace logo (first image) across multiple documents:**
+
+```bash
+python -m docops replace --doc document1.docx --img-num 1 --new-img new_logo.png --cache-dir .cache --output-dir ./updated
+```
+
+---
+
+#### `compare`
+
+Compare two image directories using multiple similarity metrics: MSE (Mean Squared Error), SSIM (Structural Similarity), and exact equality.
+
+**Parameters:**
+
+- `dir_a`: First directory containing images
+- `dir_b`: Second directory containing images
+
+**Basic comparison:**
 
 ```bash
 python -m docops compare ./dir_a ./dir_b
 ```
 
-`insert`
-
-- Insert images into a new DOCX document.
-
-Example:
+**Compare before/after image optimization:**
 
 ```bash
-python -m docops insert --images a.jpg b.jpg --output output.docx --width 5.0 --height 7.0 --auto-title
+python -m docops compare ./original_images ./compressed_images
 ```
 
-`table`
+**Compare template versions:**
 
-- Render Excel rows into a DOCX template table using `docxtpl`.
+```bash
+python -m docops compare ./design_v1 ./design_v2
+```
 
-Example:
+---
+
+#### `insert`
+
+Insert images into a new DOCX document with automatic layout and formatting.
+
+**Parameters:**
+
+- `--images`: List of image files to insert
+- `--output`: Output DOCX filename
+- `--width`: Page width in inches
+- `--height`: Page height in inches
+- `--auto-title`: Automatically add filenames as titles (optional)
+
+**Insert multiple images with auto-titling:**
+
+```bash
+python -m docops insert --images a.jpg b.jpg c.png --output output.docx --width 5.0 --height 7.0 --auto-title
+```
+
+**Create photo gallery (standard letter size):**
+
+```bash
+python -m docops insert --images photo1.jpg photo2.jpg photo3.jpg --output gallery.docx --width 8.5 --height 11.0
+```
+
+**Create image book (custom dimensions):**
+
+```bash
+python -m docops insert --images page1.png page2.png page3.png --output book.docx --width 6.0 --height 9.0 --auto-title
+```
+
+**Insert single image:**
+
+```bash
+python -m docops insert --images diagram.png --output diagram_doc.docx --width 8.5 --height 11.0
+```
+
+---
+
+#### `table`
+
+Render data from Excel spreadsheets into DOCX template tables using `docxtpl`. Perfect for mail merge and bulk document generation.
+
+**Parameters:**
+
+- `--excel`: Path to Excel file containing data
+- `--template`: Path to DOCX template file
+- `--output`: Output DOCX filename
+
+**Basic table population:**
 
 ```bash
 python -m docops table --excel data.xlsx --template template.docx --output output.docx
+```
+
+**Generate reports from data:**
+
+```bash
+python -m docops table --excel quarterly_data.xlsx --template report_template.docx --output Q1_Report.docx
+```
+
+**Create batch invoices:**
+
+```bash
+python -m docops table --excel invoice_data.xlsx --template invoice_template.docx --output invoices.docx
+```
+
+**Mail merge letters:**
+
+```bash
+python -m docops table --excel recipients.xlsx --template letter_template.docx --output merged_letters.docx
 ```
 
 ## Testing
