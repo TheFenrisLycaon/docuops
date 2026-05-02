@@ -1,0 +1,11 @@
+Pillow
+python-docx
+pandas
+openpyxl
+docxtpl
+pdf2image
+opencv-python
+scikit-image
+matplotlib
+numpy
+tqdm
