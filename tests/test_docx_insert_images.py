@@ -11,11 +11,13 @@ from docuops.docx_insert_images import insert_image
 class TestDocxInsertImages:
     """Test cases for DOCX image insertion functions."""
 
-    @patch('docx.shared.Inches')
+    @patch("docx.shared.Inches")
     def test_insert_image_with_title(self, mock_inches):
         """Test insert_image function with a title."""
         mock_doc = MagicMock()
-        mock_inches.side_effect = lambda x: int(x * 914400)  # Mock Inches conversion (approx)
+        mock_inches.side_effect = lambda x: int(
+            x * 914400
+        )  # Mock Inches conversion (approx)
 
         insert_image(mock_doc, "test.jpg", 5.0, 7.0, title="Test Title")
 
@@ -24,19 +26,21 @@ class TestDocxInsertImages:
 
         # Check that add_picture was called
         mock_doc.add_picture.assert_called_once_with(
-            "test.jpg", 
-            width=5*914400,  # 5 inches in EMUs
-            height=7*914400   # 7 inches in EMUs
+            "test.jpg",
+            width=5 * 914400,  # 5 inches in EMUs
+            height=7 * 914400,  # 7 inches in EMUs
         )
 
         # Check that add_page_break was called
         mock_doc.add_page_break.assert_called_once()
 
-    @patch('docx.shared.Inches')
+    @patch("docx.shared.Inches")
     def test_insert_image_without_title(self, mock_inches):
         """Test insert_image function without a title."""
         mock_doc = MagicMock()
-        mock_inches.side_effect = lambda x: int(x * 914400)  # Mock Inches conversion (approx)
+        mock_inches.side_effect = lambda x: int(
+            x * 914400
+        )  # Mock Inches conversion (approx)
 
         insert_image(mock_doc, "test.jpg", 5.0, 7.0)
 
@@ -45,9 +49,9 @@ class TestDocxInsertImages:
 
         # Check that add_picture was called
         mock_doc.add_picture.assert_called_once_with(
-            "test.jpg", 
-            width=5*914400,  # 5 inches in EMUs
-            height=7*914400   # 7 inches in EMUs
+            "test.jpg",
+            width=5 * 914400,  # 5 inches in EMUs
+            height=7 * 914400,  # 7 inches in EMUs
         )
 
         # Check that add_page_break was called

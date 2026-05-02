@@ -23,7 +23,7 @@ class TestPdfCompress:
         }
         assert QUALITY_PRESETS == expected
 
-    @patch('subprocess.call')
+    @patch("subprocess.call")
     def test_compress_valid_pdf(self, mock_subprocess, temp_dir):
         """Test compress function with valid PDF file."""
         # Create a mock PDF file
@@ -44,7 +44,7 @@ class TestPdfCompress:
         assert f"-sOutputFile={output_file}" in args
         assert "-dPDFSETTINGS=/ebook" in args
 
-    @patch('subprocess.call')
+    @patch("subprocess.call")
     def test_compress_invalid_file_extension(self, mock_subprocess, temp_dir):
         """Test compress function with non-PDF file."""
         txt_file = temp_dir / "test.txt"
@@ -55,7 +55,7 @@ class TestPdfCompress:
         with pytest.raises(SystemExit):
             compress(txt_file, output_file)
 
-    @patch('subprocess.call')
+    @patch("subprocess.call")
     def test_compress_nonexistent_file(self, mock_subprocess, temp_dir):
         """Test compress function with nonexistent file."""
         nonexistent = temp_dir / "nonexistent.pdf"
