@@ -45,6 +45,8 @@ def ssim_score(img_a: np.ndarray, img_b: np.ndarray) -> float:
 
 def images_equal(pil_a: Image.Image, pil_b: Image.Image) -> bool:
     """Pixel-exact equality check using PIL ImageChops."""
+    if pil_a.size != pil_b.size:
+        return False
     return ImageChops.difference(pil_a, pil_b).getbbox() is None
 
 

@@ -99,6 +99,26 @@ Example:
 python -m docops table --excel data.xlsx --template template.docx --output output.docx
 ```
 
+## Testing
+
+Install test dependencies:
+
+```bash
+pip install pytest
+```
+
+Run the test suite:
+
+```bash
+python -m docuops test
+```
+
+Or run pytest directly:
+
+```bash
+pytest tests/
+```
+
 ## Notes
 
 - The package lazily imports submodules, so only the dependencies required for a specific command need to be installed.
